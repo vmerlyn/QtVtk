@@ -12,16 +12,18 @@ class QVTKFramebufferObjectRenderer;
 class CommandModelTranslate : public CommandModel
 {
 public:
-	typedef struct
-	{
+	struct TranslateParams_t {
 		std::shared_ptr<Model> model;
-		int screenX{0};
-		int screenY{0};
-		double previousPositionX{0};
-		double previousPositionY{0};
-		double targetPositionX{0};
-		double targetPositionY{0};
-	} TranslateParams_t;
+		int screenX;
+		int screenY;
+		double previousPositionX;
+		double previousPositionY;
+		double targetPositionX;
+		double targetPositionY;
+		TranslateParams_t()
+			: model(nullptr), screenX(0), screenY(0), previousPositionX(0), 
+			previousPositionY(0), targetPositionX(0), targetPositionY(0) {}
+	};
 
 	CommandModelTranslate(QVTKFramebufferObjectRenderer *vtkFboRenderer, const TranslateParams_t & translateVector, bool inTransition);
 
