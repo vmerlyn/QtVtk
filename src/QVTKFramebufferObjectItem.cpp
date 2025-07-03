@@ -8,10 +8,25 @@
 
 QVTKFramebufferObjectItem::QVTKFramebufferObjectItem()
 {
+
 	m_lastMouseLeftButton = std::make_shared<QMouseEvent>(QEvent::None, QPointF(0,0), Qt::NoButton, Qt::NoButton, Qt::NoModifier);
 	m_lastMouseButton = std::make_shared<QMouseEvent>(QEvent::None, QPointF(0,0), Qt::NoButton, Qt::NoButton, Qt::NoModifier);
 	m_lastMouseMove = std::make_shared<QMouseEvent>(QEvent::None, QPointF(0,0), Qt::NoButton, Qt::NoButton, Qt::NoModifier);
-	m_lastMouseWheel = std::make_shared<QWheelEvent>(QPointF(0,0), 0, Qt::NoButton, Qt::NoModifier, Qt::Vertical);
+
+	QPoint pixelDelta(0, 0);
+	QPoint angleDelta(0, 0);
+	QPointF localPos(0, 0);
+	QPointF globalPos(0, 0);
+	m_lastMouseWheel = std::make_shared<QWheelEvent>(
+		localPos,
+		globalPos,
+		pixelDelta,
+		angleDelta,
+		Qt::NoButton, 
+		Qt::NoModifier, 
+		Qt::ScrollUpdate,
+		false
+	);
 
 	this->setMirrorVertically(true); // QtQuick and OpenGL have opposite Y-Axis directions
 
@@ -127,7 +142,18 @@ void QVTKFramebufferObjectItem::addCommand(CommandModel *command)
 
 void QVTKFramebufferObjectItem::wheelEvent(QWheelEvent *e)
 {
-	m_lastMouseWheel = std::make_shared<QWheelEvent>(*e);
+	m_lastMouseWheel = std::make_shared<QWheelEvent>(
+		e->position(),
+		e->globalPosition(),
+		e->pixelDelta(),
+		e->angleDelta(),
+		e->buttons(),
+		e->modifiers(),
+		e->phase(),
+		e->inverted(),
+		e->source()
+	);
+
 	m_lastMouseWheel->ignore();
 	e->accept();
 	update();
@@ -137,7 +163,15 @@ void QVTKFramebufferObjectItem::mousePressEvent(QMouseEvent *e)
 {
 	if (e->buttons() & Qt::RightButton)
 	{
-		m_lastMouseButton = std::make_shared<QMouseEvent>(*e);
+		m_lastMouseButton = std::make_shared<QMouseEvent>(
+			e->type(),
+			e->localPos(),
+			e->windowPos(),
+			e->screenPos(),
+			e->button(),
+			e->buttons(),
+			e->modifiers()
+		);
 		m_lastMouseButton->ignore();
 		e->accept();
 		update();
@@ -146,7 +180,15 @@ void QVTKFramebufferObjectItem::mousePressEvent(QMouseEvent *e)
 
 void QVTKFramebufferObjectItem::mouseReleaseEvent(QMouseEvent *e)
 {
-	m_lastMouseButton = std::make_shared<QMouseEvent>(*e);
+	m_lastMouseButton = std::make_shared<QMouseEvent>(
+		e->type(),
+		e->localPos(),
+		e->windowPos(),
+		e->screenPos(),
+		e->button(),
+		e->buttons(),
+		e->modifiers()
+	);
 	m_lastMouseButton->ignore();
 	e->accept();
 	update();
@@ -156,7 +198,15 @@ void QVTKFramebufferObjectItem::mouseMoveEvent(QMouseEvent *e)
 {
 	if (e->buttons() & Qt::RightButton)
 	{
-		*m_lastMouseMove = *e;
+		m_lastMouseMove = std::make_shared<QMouseEvent>(
+			e->type(),
+			e->localPos(),
+			e->windowPos(),
+			e->screenPos(),
+			e->button(),
+			e->buttons(),
+			e->modifiers()
+		);
 		m_lastMouseMove->ignore();
 		e->accept();
 		update();

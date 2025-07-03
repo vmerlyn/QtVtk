@@ -1,6 +1,7 @@
 #include <queue>
 
 #include <QQuickWindow>
+#include <QQuickOpenGLUtils>
 
 #include <vtkAxesActor.h>
 #include <vtkBoundedPlanePointPlacer.h>
@@ -21,6 +22,7 @@
 #include "ProcessingEngine.h"
 #include "QVTKFramebufferObjectItem.h"
 #include "QVTKFramebufferObjectRenderer.h"
+#include <QVTKOpenGLNativeWidget.h>
 
 QVTKFramebufferObjectRenderer::QVTKFramebufferObjectRenderer()
 {
@@ -81,25 +83,71 @@ void QVTKFramebufferObjectRenderer::synchronize(QQuickFramebufferObject *item)
 	// Copy mouse events
 	if (!m_vtkFboItem->getLastMouseLeftButton()->isAccepted())
 	{
-		m_mouseLeftButton = std::make_shared<QMouseEvent>(*m_vtkFboItem->getLastMouseLeftButton());
+		{
+		QMouseEvent* src = m_vtkFboItem->getLastMouseLeftButton();
+		m_mouseLeftButton = std::make_shared<QMouseEvent>(
+			src->type(),
+			src->localPos(),
+			src->windowPos(),
+			src->screenPos(),
+			src->button(),
+			src->buttons(),
+			src->modifiers()
+		);
+	}
 		m_vtkFboItem->getLastMouseLeftButton()->accept();
 	}
 
 	if (!m_vtkFboItem->getLastMouseButton()->isAccepted())
 	{
-		m_mouseEvent = std::make_shared<QMouseEvent>(*m_vtkFboItem->getLastMouseButton());
+		{
+		QMouseEvent* src = m_vtkFboItem->getLastMouseButton();
+		m_mouseEvent = std::make_shared<QMouseEvent>(
+			src->type(),
+			src->localPos(),
+			src->windowPos(),
+			src->screenPos(),
+			src->button(),
+			src->buttons(),
+			src->modifiers()
+		);
+	}
 		m_vtkFboItem->getLastMouseButton()->accept();
 	}
 
 	if (!m_vtkFboItem->getLastMoveEvent()->isAccepted())
 	{
-		m_moveEvent = std::make_shared<QMouseEvent>(*m_vtkFboItem->getLastMoveEvent());
+		{
+		QMouseEvent* src = m_vtkFboItem->getLastMoveEvent();
+		m_moveEvent = std::make_shared<QMouseEvent>(
+			src->type(),
+			src->localPos(),
+			src->windowPos(),
+			src->screenPos(),
+			src->button(),
+			src->buttons(),
+			src->modifiers()
+		);
+	}
 		m_vtkFboItem->getLastMoveEvent()->accept();
 	}
 
 	if (!m_vtkFboItem->getLastWheelEvent()->isAccepted())
 	{
-		m_wheelEvent = std::make_shared<QWheelEvent>(*m_vtkFboItem->getLastWheelEvent());
+		{
+			QWheelEvent* src = m_vtkFboItem->getLastWheelEvent();
+			m_wheelEvent = std::make_shared<QWheelEvent>(
+				src->position(),
+				src->globalPosition(),
+				src->pixelDelta(),
+				src->angleDelta(),
+				src->buttons(),
+				src->modifiers(),
+				src->phase(),
+				src->inverted(),
+				src->source()
+			);
+		}
 		m_vtkFboItem->getLastWheelEvent()->accept();
 	}
 
@@ -163,11 +211,11 @@ void QVTKFramebufferObjectRenderer::render()
 	// Process wheel event
 	if (m_wheelEvent && !m_wheelEvent->isAccepted())
 	{
-		if (m_wheelEvent->delta() > 0)
+		if (m_wheelEvent->angleDelta().y() > 0)
 		{
 			m_vtkRenderWindowInteractor->InvokeEvent(vtkCommand::MouseWheelForwardEvent, m_wheelEvent.get());
 		}
-		else if (m_wheelEvent->delta() < 0)
+		else if (m_wheelEvent->angleDelta().y() < 0)
 		{
 			m_vtkRenderWindowInteractor->InvokeEvent(vtkCommand::MouseWheelBackwardEvent, m_wheelEvent.get());
 		}
@@ -218,7 +266,10 @@ void QVTKFramebufferObjectRenderer::render()
 	m_vtkRenderWindow->Render();
 	m_vtkRenderWindow->PopState();
 
-	m_vtkFboItem->window()->resetOpenGLState();
+
+	//resetOpenGLState Method has moved since Qt6
+	//m_vtkFboItem->window()->resetOpenGLState();
+	QQuickOpenGLUtils::resetOpenGLState();
 }
 
 void QVTKFramebufferObjectRenderer::openGLInitState()
@@ -243,8 +294,8 @@ QOpenGLFramebufferObject *QVTKFramebufferObjectRenderer::createFramebufferObject
 #endif
 	m_vtkRenderWindow->SetBackLeftBuffer(GL_COLOR_ATTACHMENT0);
 	m_vtkRenderWindow->SetFrontLeftBuffer(GL_COLOR_ATTACHMENT0);
-	m_vtkRenderWindow->SetBackBuffer(GL_COLOR_ATTACHMENT0);
-	m_vtkRenderWindow->SetFrontBuffer(GL_COLOR_ATTACHMENT0);
+	m_vtkRenderWindow->SetBackRightBuffer(GL_COLOR_ATTACHMENT0);
+	m_vtkRenderWindow->SetFrontRightBuffer(GL_COLOR_ATTACHMENT0);
 	m_vtkRenderWindow->SetSize(framebufferObject->size().width(), framebufferObject->size().height());
 	m_vtkRenderWindow->SetOffScreenRendering(true);
 	m_vtkRenderWindow->Modified();
