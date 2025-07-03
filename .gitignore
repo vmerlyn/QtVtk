@@ -1,0 +1,42 @@
+# Qt build and user files
+build/
+bin/
+*.pro.user
+*.qmake.stash
+*.pro.user.*
+*.autosave
+
+# CMake build files
+CMakeFiles/
+CMakeCache.txt
+cmake_install.cmake
+Makefile
+
+# Compiled binaries and objects
+*.exe
+*.dll
+*.so
+*.dylib
+*.a
+*.lib
+*.o
+*.obj
+
+# Qt Creator/CLion/VSCode/other IDEs
+.idea/
+.vscode/
+*.swp
+*.swo
+*.kate-swp
+
+# OS generated files
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log
+
+# Other
+moc_*.cpp
+ui_*.h
+qrc_*.cpp

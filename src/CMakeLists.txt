@@ -27,10 +27,10 @@ endif()
 # Find the Qt libraries
 set(CMAKE_PREFIX_PATH $ENV{QTDIR})
 
-find_package(Qt5Quick REQUIRED)
-find_package(Qt5Widgets REQUIRED)
-find_package(Qt5Qml REQUIRED)
-find_package(Qt5QuickControls2 REQUIRED)
+find_package(Qt6Quick REQUIRED)
+find_package(Qt6Widgets REQUIRED)
+find_package(Qt6Qml REQUIRED)
+find_package(Qt6QuickControls2 REQUIRED)
 
 # Instruct CMake to run moc automatically when needed
 set(CMAKE_AUTOMOC ON)
@@ -73,7 +73,7 @@ else()
 endif()
 
 # Qt Resources
-qt5_add_resources(RESOURCES qml.qrc)
+qt6_add_resources(RESOURCES qml.qrc)
 
 # Build executable
 if (WIN32)
@@ -83,7 +83,7 @@ else()
 endif()
 
 # Link to libraries
-target_link_libraries(${EXENAME} Qt5::Quick Qt5::Widgets Qt5::Qml Qt5::QuickControls2 ${VTK_LIBRARIES} ${SYSTEM_LIBS})
+target_link_libraries(${EXENAME} Qt6::Quick Qt6::Widgets Qt6::Qml Qt6::QuickControls2 ${VTK_LIBRARIES} ${SYSTEM_LIBS})
 
 
 
