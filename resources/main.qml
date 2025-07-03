@@ -1,9 +1,10 @@
 import QtQuick 2.9
 import QtQuick.Controls 2.2
-import QtQuick.Dialogs 1.2
+import QtQuick.Dialogs
 import QtQuick.Window 2.3
 import QtQuick.Controls.Material 2.2
 import QtVTK 1.0
+import QtCore
 
 
 ApplicationWindow {
@@ -161,12 +162,12 @@ ApplicationWindow {
         id: openModelsFileDialog
         visible: canvasHandler.showFileDialog
         title: "Import model"
-        folder: shortcuts.documents
+        currentFolder: StandardPaths.standardLocations(StandardPaths.DocumentsLocation)[0]
         nameFilters: ["Model files" + "(*.stl *.STL *.obj *.OBJ)", "All files" + "(*)"]
 
         onAccepted: {
             canvasHandler.showFileDialog = false;
-            canvasHandler.openModel(fileUrl);
+            canvasHandler.openModel(selectedFile);
         }
         onRejected: {
             canvasHandler.showFileDialog = false;
